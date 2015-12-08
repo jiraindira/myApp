@@ -1,0 +1,32 @@
+<ion-header-bar class="bar-calm">
+  <h2 class="title">Reviewed</h2>
+  <!--<button class="button button-icon ion-plus-circled" ng-click="#/tab/addReview"></button>-->
+  <a class="button button-icon ion-plus-circled" ui-sref="tab.add-review"></a>
+ </ion-header-bar>
+
+<div class="bar bar-subheader item-input-inset bar-light">
+  <label class="item-input-wrapper">
+    <i class="icon ion-search placeholder-icon"></i>
+    <input type="search" ng-model="query" placeholder="Search">
+  </label>
+
+  <button class="button button-icon ion-ios-settings" ng-click="openModal()"></button>
+</div>
+
+<ion-content class="has-subheader">
+  <ion-list>
+    <ion-item class="item-remove-animate item-thumbnail-left item-icon-right" ng-repeat="restaurant in restaurants | myFilter">
+      <img src="img/cutlery.jpg" alt="Photo">
+      <h2>{{restaurant.name}}</h2>
+      <p>{{restaurant.address}}</p>
+      <i class="icon ion-chevron-right icon-accessory"></i>
+
+      <ion-option-button class="button-assertive" ng-click="remove(chat)">
+        Delete
+      </ion-option-button>
+      <ion-option-button class="button-stable" ng-click="remove(chat)">
+        Favorite
+      </ion-option-button>
+    </ion-item>
+  </ion-list>
+</ion-content>
