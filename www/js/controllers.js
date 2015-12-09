@@ -1,4 +1,4 @@
-angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
+angular.module('starter.controllers', ['myService', 'ion-autocomplete','autocomplete'])
 
 .controller('ReviewedCtrl', ['$scope', '$firebase', '$ionicModal', function($scope, $firebase, $ionicModal) {
 
@@ -116,22 +116,31 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
       name: 'Outdoor Space',
       isSelected: false
     }
-  ]
+  ];
+  $scope.places = [];
 
   var self = this;
 
-  $scope.getTestItems = function (query) {
-    console.log(query);
+
+  // gives another movie array on change
+  $scope.getTest = function(typed){
+    //$scope.fourSquare = get4SquareRestaurants();
+
+    get4SquareRestaurants(typed).then(function(data){
+      $scope.places = data;
+    })
+  };
+
+  function get4SquareRestaurants(typed){
     var location = "New York";
+    var defered = $q.defer();
 
-      var defered = $q.defer();
+    placesExplorerService.get({ near: location, query: typed , limit: 4 },function(result){
+      defered.resolve(result.response.minivenues);
+      console.log(result.response)
+    });
 
-
-      placesExplorerService.get({ near: location, query: query , limit: 4 },function(result){
-        defered.resolve(result.response.minivenues);
-        console.log(result.response)
-      });
-      return defered.promise;
+    return defered.promise;
   }
 
 })

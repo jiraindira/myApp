@@ -12,18 +12,9 @@
 
     <label class="item item-input">
       <span class="input-label">Restaurant</span>
-      <!--<input type="search" placeholder="The Restaurant's Name" ng-change="search()" ng-model="searchQuery">-->
 
-    <input ion-autocomplete
-           type="text"
-           readonly="readonly"
-           class="ion-autocomplete"
-           autocomplete="off"
-           ng-model="model"
-           item-view-value-key = "name"
-           items-method="getTestItems(query)"
-           max-selected-items="1" />
     </label>
+    <autocomplete ng-model="yourchoice" data="places" on-type="getTest" attr-placeholder="Restaurant Name"></autocomplete>
 
     <label class="item item-input">
       <span class="input-label">Location</span>
