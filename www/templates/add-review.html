@@ -1,8 +1,12 @@
+
 <ion-header-bar class="bar-calm">
   <a class="button button-icon ion-chevron-left" ui-sref="tab.reviewed"></a>
   <h2 class="title">Add Review</h2>
+  <a class="button button-icon ion-checkmark-round" ng-click="AddPost()"></a>
+
 </ion-header-bar>
 
+<<<<<<< HEAD
 <ion-content class="has-header">
   <div class="list list-inset">
     <label class="item item-input">
@@ -34,7 +38,62 @@
       <ion-toggle ng-repeat="observation in observations" ng-model="observation.isSelected">
         {{observation.name}}
       </ion-toggle>
+=======
+<ion-content>
+  <div class="list">
+      <div class="item-input-inset">
+        <label class="item-input-wrapper">
+          <i class="icon ion-search placeholder-icon"></i>
+          <input type="search" placeholder="Search Restaurant" ng-change="search(data.search)" ng-model="data.search">
+        </label>
+      </div>
+      <div class="item item-input-inset">
+        <label class="item-input-wrapper">
+          <i class="icon ion-map placeholder-icon"></i>
+          <input type="search" ng-model="restaurantData.location" placeholder="Location">
+        </label>
+      </div>
+  </div>
+>>>>>>> working-version
 
+  <div ng-if="places.length > 0 && placeSelected === false">
+    <ion-list>
+      <ion-item ng-repeat="place in places" ng-click="itemSelected(place)">
+        <h2>{{place.name}}</h2>
+        <h3>{{place.location.crossStreet}}</h3>
+      </ion-item>
+    </ion-list>
   </div>
 
+  <div ng-if="places.length > 0 && placeSelected === true">
+    <h3 class="padding-left">{{selectedPlace.name}}</h3>
+    <h5 class="padding-left">{{selectedPlace.location.crossStreet}}</h5>
+
+    <div class="list">
+      <div class="item item-divider">How was the food
+        <div class="button-bar">
+          <a class="button button-calm icon ion-thumbsup" ng-click="reviewerData.food='1'"></a>
+          <a class="button button-calm icon ion-thumbsup" ng-click="reviewerData.food='2'"></a>
+          <a class="button button-calm icon ion-thumbsup" ng-click="reviewerData.food='3'"></a>
+        </div>
+      </div>
+      <div class="item item-divider">How was the service
+        <div class="button-bar">
+          <a class="button button-calm icon ion-thumbsup" ng-click="reviewerData.service='1'"></a>
+          <a class="button button-calm icon ion-thumbsup" ng-click="reviewerData.service='2'"></a>
+          <a class="button button-calm icon ion-thumbsup" ng-click="reviewerData.service='3'"></a>
+        </div>
+      </div>
+
+      <div class="item item-divider">Which dish(es) did you love?
+        <input type="text" ng-model="reviewerData.dish">
+      </div>
+
+      <div class="item item-divider">Observations...</div>
+      <ion-toggle ng-repeat="observation in restaurantData.observations" ng-model="observation.isSelected">
+        {{observation.name}}
+      </ion-toggle>
+    </div>
+  </div>
 </ion-content>
+
