@@ -38,8 +38,6 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
     });
   });
 
-  console.log("pass");
-
   $ionicModal.fromTemplateUrl('templates/filter-modal.html', {
     scope: $scope,
     animation: 'slide-in-up'
@@ -61,9 +59,14 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
 
 }])
 
-.controller('AddReviewCtrl', function($scope, $stateParams, $q, Firebase, placesExplorerService) {
+.controller('AddReviewCtrl', function($scope, $state, $stateParams, $q, Firebase, placesExplorerService) {
 
-  $scope.observations = [
+  // we will store all of the restaurant specific data here
+  $scope.restaurantData = {};
+  // we will store all of the reviewer's specific data here
+  $scope.reviewerData = {};
+
+  $scope.restaurantData.observations = [
     {
       name: 'Big Group',
       isSelected: false
@@ -116,24 +119,119 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
       name: 'Outdoor Space',
       isSelected: false
     }
-  ]
+  ];
+  $scope.placeSelected = false;
+  $scope.restaurantData.location = "New York";
 
   var self = this;
 
-  $scope.getTestItems = function (query) {
-    console.log(query);
-    var location = "New York";
+  $scope.search = function (query) {
 
-      var defered = $q.defer();
-
-
-      placesExplorerService.get({ near: location, query: query , limit: 4 },function(result){
-        defered.resolve(result.response.minivenues);
-        console.log(result.response)
-      });
-      return defered.promise;
+    get4SquareRestaurants(query).then(function (data) {
+      $scope.places = data;
+      console.log(data);
+    });
   }
 
+  $scope.itemSelected = function(selected){
+    $scope.selectedPlace = selected;
+    $scope.placeSelected = true;
+
+    //store info from fsquare and move to next view
+    $scope.restaurantData.name = selected.name;
+    $scope.restaurantData.address = selected.location.address;
+    $scope.restaurantData.location = selected.location.city;
+    $scope.restaurantData.fsquareID = selected.id;
+    if ("crossStreet" in selected.location){
+      $scope.restaurantData.crossStreet = selected.location.crossStreet;
+    }
+    else
+    {
+      $scope.restaurantData.crossStreet = "N/A"
+    }
+    $scope.restaurantData.longitude = selected.location.lng;
+    $scope.restaurantData.latitude = selected.location.lat;
+
+
+  }
+
+  function get4SquareRestaurants(query){
+    //var location = "New York";
+    var defered = $q.defer();
+
+    placesExplorerService.get({ near: $scope.restaurantData.location , query: query , limit: 4 },function(result){
+      defered.resolve(result.response.minivenues);
+      console.log(result.response)
+    });
+    return defered.promise;
+  }
+
+  $scope.AddPost = function(){
+    $scope.reviewerData.reviewer = 'Jirain';
+
+    var id = $scope.restaurantData.fsquareID;
+    var manualId = $scope.restaurantData.name;
+    var reviewer = $scope.reviewerData.reviewer;
+
+    if (id == undefined){
+      var firebaseID = manualId;
+      var firebaseChild = "name";
+    }
+    else{
+      var firebaseID = id;
+      var firebaseChild = "fsquareID"
+    }
+    //add date to the reviewer list
+    d = new Date();
+    $scope.reviewerData.date = d.toDateString();
+
+    // Making a copy so that you don't mess with original user input
+    var payloadRestaurant = angular.copy($scope.restaurantData);
+    var payloadReviewer = angular.copy($scope.reviewerData);
+
+    // create restaurant object from firebase
+    var restoRef = new Firebase('https://dazzling-heat-4525.firebaseio.com/restaurant');
+    var reviewsUrl = "";
+    var fbReviews = {};
+
+    restoRef.orderByChild(firebaseChild).startAt(firebaseID).endAt(firebaseID).once('value', function(dataSnapshot) {
+      //GET DATA
+
+      if (dataSnapshot.exists()){
+        var data = dataSnapshot.val();
+        var key = Object.keys(data)[0];
+        var masterList = consolidateObservation(data[key],$scope.restaurantData.observations);
+        restoRef.child(key).set(masterList);
+        reviewsUrl = 'https://dazzling-heat-4525.firebaseio.com/restaurant/' + key + "/reviews";
+        fbReviews = new Firebase(reviewsUrl);
+        fbReviews.push(payloadReviewer);
+      }
+      else{
+        //var masterList1 = consolidateObservation(payloadRestaurant,$scope.restaurantData.observations);
+        var pushedResto = restoRef.push(payloadRestaurant);
+        reviewsUrl = 'https://dazzling-heat-4525.firebaseio.com/restaurant/' + pushedResto.key() + "/reviews";
+        fbReviews = new Firebase(reviewsUrl);
+        fbReviews.push(payloadReviewer);
+
+      };
+
+    });
+
+    //consolidate observations into a master list
+    function consolidateObservation(masterObservation,userObservation){
+      for (var i in userObservation){
+        if (userObservation[i].isSelected === true){
+          // i need to fix this. I should refer to the name instead of the i
+          masterObservation.observations[i] = angular.copy(userObservation[i]);
+        }
+
+      }
+      return masterObservation;
+    }
+
+    $state.go('tab.reviewed', {}, {reload: true});
+
+  };
 })
 
 .controller('ChatsCtrl', function($scope, Chats) {
