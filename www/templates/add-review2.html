@@ -1,0 +1,40 @@
+
+<ion-header-bar class="bar-assertive">
+  <a class="button button-icon ion-chevron-left" ui-sref="tab.add-review"></a>
+  <h2 class="title">Add Review2</h2>
+  <a class="button button-icon ion-checkmark-round" ng-click="AddPost()"></a>
+
+</ion-header-bar>
+
+<ion-content>
+    <h3 class="padding-left">{{selectedPlace.name}}</h3>
+    <h5 class="padding-left">{{selectedPlace.location.crossStreet}}</h5>
+
+    <div class="list">
+      <div class="item item-divider item-dark">The food was</div>
+      <ion-radio ng-repeat="choice in foodChoices"
+                 ng-model="reviewerData.food"
+                 ng-value="choice.value"
+                 name="food">
+        {{ choice.text }}
+      </ion-radio>
+
+      <div class="item item-divider item-dark">The service was</div>
+      <ion-radio ng-repeat="choice in serviceChoices"
+                 ng-model="reviewerData.service"
+                 ng-value="choice.value"
+                 name="service">
+        {{ choice.text }}
+      </ion-radio>
+
+      <div class="item item-divider item-dark">Which dish(es) did you love?</div>
+      <input type="text" ng-model="reviewerData.dish">
+
+
+      <div class="item item-divider item-dark">Observations...</div>
+      <ion-toggle ng-repeat="observation in restaurantData.observations" ng-model="observation.isSelected">
+        {{observation.name}}
+      </ion-toggle>
+    </div>
+</ion-content>
+

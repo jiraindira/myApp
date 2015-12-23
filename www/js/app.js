@@ -60,6 +60,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     }
   })
 
+    .state('tab.add-review2', {
+      url: '/addReview2',
+      views: {
+        'tab-reviewed': {
+          templateUrl: 'templates/add-review2.html',
+          controller: 'AddReview2Ctrl'
+        }
+      }
+    })
+
 
   .state('tab.chats', {
       url: '/chats',
