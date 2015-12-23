@@ -50,22 +50,22 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     }
   })
 
-  .state('tab.add-review', {
-    url: '/addReview',
+  .state('tab.search-restaurant', {
+    url: '/searchRestaurant',
     views: {
       'tab-reviewed': {
-        templateUrl: 'templates/add-review.html',
-        controller: 'AddReviewCtrl'
+        templateUrl: 'templates/search-restaurant.html',
+        controller: 'SearchRestaurantCtrl'
       }
     }
   })
 
-    .state('tab.add-review2', {
-      url: '/addReview2',
+    .state('tab.add-review', {
+      url: '/addReview',
       views: {
         'tab-reviewed': {
-          templateUrl: 'templates/add-review2.html',
-          controller: 'AddReview2Ctrl'
+          templateUrl: 'templates/add-review.html',
+          controller: 'AddReviewCtrl'
         }
       }
     })

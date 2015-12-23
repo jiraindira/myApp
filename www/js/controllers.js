@@ -59,7 +59,7 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
 
 }])
 
-.controller('AddReviewCtrl', function($scope, $state, $stateParams, $q, Firebase, placesExplorerService, restaurantDataService) {
+.controller('SearchRestaurantCtrl', function($scope, $state, $stateParams, $q, Firebase, placesExplorerService, restaurantDataService) {
 
   // we will store all of the restaurant specific data here
   $scope.restaurantData = {};
@@ -98,7 +98,7 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
 
     restaurantDataService.RestaurantAttributes = $scope.restaurantData;
 
-    $state.go('tab.add-review2', {}, {reload: true});
+    $state.go('tab.add-review', {}, {reload: true});
   };
 
   function get4SquareRestaurants(query){
@@ -114,153 +114,152 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
 
 })
 
-  .controller('AddReview2Ctrl', function($scope, $state, $stateParams, $q, Firebase, placesExplorerService, restaurantDataService) {
+.controller('AddReviewCtrl', function($scope, $state, $stateParams, $q, Firebase, placesExplorerService, restaurantDataService) {
 
-    console.log($scope.restaurantData);
-    $scope.restaurantData = restaurantDataService.getRestaurant();
-    // we will store all of the reviewer's specific data here
-    $scope.reviewerData = {};
+  $scope.restaurantData = restaurantDataService.getRestaurant();
+  // we will store all of the reviewer's specific data here
+  $scope.reviewerData = {};
 
-    $scope.foodChoices = [
-      { text: "Good", value: 'good' },
-      { text: "Amazing", value: 'amazing' }
-    ];
+  $scope.foodChoices = [
+    { text: "Good", value: 'good' },
+    { text: "Amazing", value: 'amazing' }
+  ];
 
-    $scope.serviceChoices = [
-      { text: "Good", value: 'good' },
-      { text: "Amazing", value: 'amazing' }
-    ];
+  $scope.serviceChoices = [
+    { text: "Good", value: 'good' },
+    { text: "Amazing", value: 'amazing' }
+  ];
 
-    $scope.reviewerData = {
-      food: 'good',
-      service: 'good'
+  $scope.reviewerData = {
+    food: 'good',
+    service: 'good'
 
-    };
+  };
 
-    $scope.restaurantData.observations = [
-      {
-        name: 'Big Group',
-        isSelected: false
-      },
-      {
-        name: 'Casual',
-        isSelected: false
-      },
-      {
-        name: 'Conversations',
-        isSelected: false
-      },
-      {
-        name: 'Crowded',
-        isSelected: false
-      },
-      {
-        name: 'Date Spot',
-        isSelected: false
-      },
-      {
-        name: 'Value For Money',
-        isSelected: false
-      },
-      {
-        name: 'Service',
-        isSelected: false
-      },
-      {
-        name: 'View',
-        isSelected: false
-      },
-      {
-        name: 'Long Wait',
-        isSelected: false
-      },
-      {
-        name: 'Meeting',
-        isSelected: false
-      },
-      {
-        name: 'Mixiology',
-        isSelected: false
-      },
-      {
-        name: 'Romantic',
-        isSelected: false
-      },
-      {
-        name: 'Outdoor Space',
-        isSelected: false
-      }
-    ];
+  $scope.restaurantData.observations = [
+    {
+      name: 'Big Group',
+      isSelected: false
+    },
+    {
+      name: 'Casual',
+      isSelected: false
+    },
+    {
+      name: 'Conversations',
+      isSelected: false
+    },
+    {
+      name: 'Crowded',
+      isSelected: false
+    },
+    {
+      name: 'Date Spot',
+      isSelected: false
+    },
+    {
+      name: 'Value For Money',
+      isSelected: false
+    },
+    {
+      name: 'Service',
+      isSelected: false
+    },
+    {
+      name: 'View',
+      isSelected: false
+    },
+    {
+      name: 'Long Wait',
+      isSelected: false
+    },
+    {
+      name: 'Meeting',
+      isSelected: false
+    },
+    {
+      name: 'Mixiology',
+      isSelected: false
+    },
+    {
+      name: 'Romantic',
+      isSelected: false
+    },
+    {
+      name: 'Outdoor Space',
+      isSelected: false
+    }
+  ];
 
-    var self = this;
+  var self = this;
 
-    $scope.AddPost = function(){
-      $scope.reviewerData.reviewer = 'Jirain';
+  $scope.AddPost = function(){
+    $scope.reviewerData.reviewer = 'Jirain';
 
-      var id = $scope.restaurantData.fsquareID;
-      var manualId = $scope.restaurantData.name;
-      var reviewer = $scope.reviewerData.reviewer;
+    var id = $scope.restaurantData.fsquareID;
+    var manualId = $scope.restaurantData.name;
+    var reviewer = $scope.reviewerData.reviewer;
 
-      if (id == undefined){
-        var firebaseID = manualId;
-        var firebaseChild = "name";
+    if (id == undefined){
+      var firebaseID = manualId;
+      var firebaseChild = "name";
+    }
+    else{
+      var firebaseID = id;
+      var firebaseChild = "fsquareID"
+    }
+    //add date to the reviewer list
+    d = new Date();
+    $scope.reviewerData.date = d.toDateString();
+
+    // Making a copy so that you don't mess with original user input
+    var payloadRestaurant = angular.copy($scope.restaurantData);
+    var payloadReviewer = angular.copy($scope.reviewerData);
+
+    // create restaurant object from firebase
+    var restoRef = new Firebase('https://dazzling-heat-4525.firebaseio.com/restaurant');
+    var reviewsUrl = "";
+    var fbReviews = {};
+
+    restoRef.orderByChild(firebaseChild).startAt(firebaseID).endAt(firebaseID).once('value', function(dataSnapshot) {
+      //GET DATA
+
+      if (dataSnapshot.exists()){
+        var data = dataSnapshot.val();
+        var key = Object.keys(data)[0];
+        var masterList = consolidateObservation(data[key],$scope.restaurantData.observations);
+        restoRef.child(key).set(masterList);
+        reviewsUrl = 'https://dazzling-heat-4525.firebaseio.com/restaurant/' + key + "/reviews";
+        fbReviews = new Firebase(reviewsUrl);
+        fbReviews.push(payloadReviewer);
       }
       else{
-        var firebaseID = id;
-        var firebaseChild = "fsquareID"
-      }
-      //add date to the reviewer list
-      d = new Date();
-      $scope.reviewerData.date = d.toDateString();
+        //var masterList1 = consolidateObservation(payloadRestaurant,$scope.restaurantData.observations);
+        var pushedResto = restoRef.push(payloadRestaurant);
+        reviewsUrl = 'https://dazzling-heat-4525.firebaseio.com/restaurant/' + pushedResto.key() + "/reviews";
+        fbReviews = new Firebase(reviewsUrl);
+        fbReviews.push(payloadReviewer);
 
-      // Making a copy so that you don't mess with original user input
-      var payloadRestaurant = angular.copy($scope.restaurantData);
-      var payloadReviewer = angular.copy($scope.reviewerData);
+      };
 
-      // create restaurant object from firebase
-      var restoRef = new Firebase('https://dazzling-heat-4525.firebaseio.com/restaurant');
-      var reviewsUrl = "";
-      var fbReviews = {};
+    });
 
-      restoRef.orderByChild(firebaseChild).startAt(firebaseID).endAt(firebaseID).once('value', function(dataSnapshot) {
-        //GET DATA
-
-        if (dataSnapshot.exists()){
-          var data = dataSnapshot.val();
-          var key = Object.keys(data)[0];
-          var masterList = consolidateObservation(data[key],$scope.restaurantData.observations);
-          restoRef.child(key).set(masterList);
-          reviewsUrl = 'https://dazzling-heat-4525.firebaseio.com/restaurant/' + key + "/reviews";
-          fbReviews = new Firebase(reviewsUrl);
-          fbReviews.push(payloadReviewer);
+    //consolidate observations into a master list
+    function consolidateObservation(masterObservation,userObservation){
+      for (var i in userObservation){
+        if (userObservation[i].isSelected === true){
+          // i need to fix this. I should refer to the name instead of the i
+          masterObservation.observations[i] = angular.copy(userObservation[i]);
         }
-        else{
-          //var masterList1 = consolidateObservation(payloadRestaurant,$scope.restaurantData.observations);
-          var pushedResto = restoRef.push(payloadRestaurant);
-          reviewsUrl = 'https://dazzling-heat-4525.firebaseio.com/restaurant/' + pushedResto.key() + "/reviews";
-          fbReviews = new Firebase(reviewsUrl);
-          fbReviews.push(payloadReviewer);
 
-        };
-
-      });
-
-      //consolidate observations into a master list
-      function consolidateObservation(masterObservation,userObservation){
-        for (var i in userObservation){
-          if (userObservation[i].isSelected === true){
-            // i need to fix this. I should refer to the name instead of the i
-            masterObservation.observations[i] = angular.copy(userObservation[i]);
-          }
-
-        }
-        return masterObservation;
       }
+      return masterObservation;
+    }
 
-      $state.go('tab.reviewed', {}, {reload: true});
+    $state.go('tab.reviewed', {}, {reload: true});
 
-    };
-  })
+  };
+})
 
 .controller('ChatsCtrl', function($scope, Chats) {
   // With the new view caching in Ionic, Controllers are only called
@@ -362,28 +361,6 @@ angular.module('starter.controllers', ['myService', 'ion-autocomplete'])
     return array.join(', ');
   };
 })
-
-//.service('filterService',function(){
-//  var self = this;
-//
-//  this.allReviewers = [];
-//  this.allCities = [];
-//
-//  function getSelectedOnly(array){
-//    return array.filter(function(item){
-//      return item.selected;
-//    })
-//  }
-//
-//  this.getSelectedReviewers = function(){
-//    return getSelectedOnly(self.allReviewers)
-//  }
-//
-//  this.getSelectedCities = function(){
-//    return getSelectedOnly(self.allCities)
-//  }
-//
-//})
 
 .service('restaurantDataService', function(){
   var self = this;
